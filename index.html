@@ -372,7 +372,7 @@ tbody tr:last-child td{border-bottom:none}
       <div style="margin-top:24px;font-size:9px;color:rgba(180,150,100,0.4);letter-spacing:0.2em;text-transform:uppercase;text-align:center">Um grupo · Um só propósito</div>
     </div>
     <div class="login-right">
-      <div class="login-panel-logo"><img src="grupo vias.png" alt="Grupo Vias"></div>
+      <div class="login-panel-logo"><img src="baixar.png" alt="Grupo Vias"></div>
       <div class="lh1">Bem-vindo</div>
       <div class="lsub">Acesse o sistema integrado de férias</div>
       <div class="lf"><label>Usuário</label><input type="text" id="loginUser" placeholder="seu.usuario" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -772,12 +772,6 @@ const DATA_RAW=[
        {p:1,ini:'2026-10-05',fim:'2026-11-03',dias:30,status:'planejado',obs:'EXTRA OFICIAL - 05/10/2026 A 14/10/2026 - 10 DIAS e 19/04/2027 A 28/04/2027 - 10 DIAS - VENDE 10 DIAS',extraOficial:true,vende:true,rescisao:false}
      ]}
    ]},
-  {id:41,name:'Gisley (Viasbosque)',cargo:'Vendedora',admissao:'2024-11-05',empresa:'viasbosque',oficial:true,obsDir:'',
-   periodos:[
-     {label:'2024–2025',anoInicio:2024,anoFim:2025,dataLimite:'05/10/2026',direito:30,isCurrent:false,gozados:[
-       {p:1,ini:null,fim:null,dias:1,status:'planejado',obs:'VENDE 10 DIAS',extraOficial:false,vende:true,rescisao:false}
-     ]}
-   ]},
   {id:42,name:'Marluce de Souza Rocha',cargo:'Vendedora',admissao:'2025-07-08',empresa:'viasbosque',oficial:true,obsDir:'',
    periodos:[
      {label:'2025–2026',anoInicio:2025,anoFim:2026,dataLimite:'08/06/2027',direito:30,isCurrent:true,gozados:[
@@ -875,7 +869,11 @@ function diasEntre(ini,fim){
   const dias=Math.round((end-start)/(1000*60*60*24))+1;
   return dias>0?dias:0;
 }
-function diasGozo(g){return g&&g.ini&&g.fim?diasEntre(g.ini,g.fim):0;}
+function diasGozo(g){
+  if(!g)return 0;
+  if(g.ini&&g.fim&&Number(g.dias)>0)return Number(g.dias);
+  return g.ini&&g.fim?diasEntre(g.ini,g.fim):0;
+}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 function emp2Main(e){
   // Retorna o gozo principal (maior status priority: em-ferias > aprovado > planejado)
@@ -1347,9 +1345,10 @@ function saveModal(){
 
 function delRecord(){
   if(!editingId)return;
-  const e=employees.find(x=>x.id===editingId);if(!e)return;
-  if(!confirm(`Excluir registro de ${e.name}?`))return;
-  e.periodos.forEach(p=>{p.gozados=[];ensureSaldo(p);});
+  const idx=employees.findIndex(x=>x.id===editingId);if(idx<0)return;
+  const e=employees[idx];
+  if(!confirm(`Excluir funcionário(a) ${e.name}?`))return;
+  employees.splice(idx,1);
   closeModal();refreshPage();toast('Registro removido');
 }
 
